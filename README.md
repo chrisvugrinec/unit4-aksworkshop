@@ -67,13 +67,23 @@ make sure you have terraform cli installed and that you have an active session (
 
 #### Terraform
 
+* cd aks/terraform
+* change values in main.tf
+* __*terraform init*__
+* __*terraform plan*__
+* __*terraform apply -auto-aprove*__
 
 ## Basic Kubernetes
+
+### Watch Kubernetes Console
+
+* list clusters: __*az aks list -o table*__
+* tunnel console: __*az aks browse -n [name of cluster] -g [name of resourcegroup]*__ 
 
 ### Namespace
 
 * list namespaces: __*kubectl get ns*__
-* create namespace __*kubectl create ns [name of namespace]*__
+* create namespace: __*kubectl create ns [name of namespace]*__
 * list deployments in the kube-system namespace: __*kubectl get deploy -n kube-system*__
 * list pods over all namespace: __*kubectl get pods --all-namespaces*__
 
@@ -86,9 +96,16 @@ make sure you have terraform cli installed and that you have an active session (
 
 ## Deploy  Game of Thrones Application
 
+This application depends on redis:
+* deploy: __*kubectl run redis --image redis*__
+* expose as service __*kubectl expose deployment redis --port 6379*__
+
+Bonus: make redis part of the GOT application (hint use helm)
+
 ### Install GOT app with kubectl
 
 * change code...or not
+* cd got-app
 * create image __*docker build -t [your dockerhub account]/[your image name] .*__
 * push image to dockerhub __*docker push [your dockerhub account]/[your image name]*__
 * Deploy __*kubectl run [deployment name] --image [your dockerhub account]/[your image name]*__
@@ -96,12 +113,23 @@ make sure you have terraform cli installed and that you have an active session (
 * check logs/ troubleshoot
   * __*kubectl logs -f [pod name]*__
   * __*kubectl describe [pod name]*__
-  * Bonus: label app and use label to retrieve pod name
+* expose app as service to internet: __*kubectl expose deployment [name of deployment]  --type LoadBalancer*__
 
 ### Install GOT app with DRAFT
 
 * change code...or not
-* 
+* cd got-app
+* __*draft init*__
+* list your registries: __*az acr list -o table*__
+* setup your registry: __*draft config set registry [ fqd of your registry ]*__
+* login to your registry: __*az acr login -n [ name of your acr ]*__
+* create required files: __*draft create*__
+* review the draft.toml file
+* review the charts (is helm)
+* change the values in charts/python/values.yaml
+  * change service.type from ClusterIP to LoadBalancer
+  * change internalPort from 8080 to 5000
+* deploy app to kubernetes: __*draft up*__
 
 
 ### Setup application logging with EFK
