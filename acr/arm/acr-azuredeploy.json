@@ -1,0 +1,56 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "acrName": {
+         "type": "string"
+      },
+      "acrStorageAccountName": {
+         "type": "string"
+      },
+      "location": {
+         "type": "string"
+      }
+    },
+    "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[parameters('acrStorageAccountName')]",
+      "apiVersion": "2016-01-01",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage",
+      "properties": {
+        "encryption": {
+          "services": {
+            "blob": {
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      }
+    },
+    {
+      "name": "[parameters('acrName')]",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "location": "[parameters('location')]",
+      "apiVersion": "2017-03-01",
+      "sku": {
+        "name": "Basic"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('acrStorageAccountName'))]"
+      ],
+      "properties": {
+        "adminUserEnabled": true,
+        "storageAccount": {
+          "name": "[parameters('acrStorageAccountName')]",
+          "accessKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('acrStorageAccountName')), '2016-01-01').keys[0].value]"
+        }
+      }
+    }
+    ]
+}

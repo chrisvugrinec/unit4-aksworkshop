@@ -3,21 +3,12 @@
 The goal of this workshop is to get familiar with AKS and learn some basic troubleshooting, topics will be:
 
 * Setup AKS cluster
-  * by script
-  * by desired state config: ARM or Terraform
+* Setup ACR
 * Deploy  Game of Thrones Application
-  * Setup application logging with EFK
-  * Install OSBA, move REDIS to PAAS
 * Deploy Cats and Dogs application
-  * package application in Helm
 * Implement basic Security
-  * Namespace management
-  * Exposure of services
 * Infrastructure logging
-  * Setup prometheus
-  * Look at Integrated logging (Application Insights)
 * Config Autoscaling
-  * Chatbot scaler
 
 
 ## Setup AKS cluster
@@ -41,7 +32,7 @@ __*git clone https://github.com/chrisvugrinec/unit4-aksworkshop.git*__
 
 If you like to use keyvault for storing secrets, please have a look at this [link](https://github.com/Azure/azure-quickstart-templates/tree/master/101-aks)
 
-* cd desired-state/arm
+* cd aks/arm
 * create resourcegroup: __*az deployment create -l westeurope --template-file rg-azuredeploy.json --parameters rgName=demoRG rgLocation=westeurope*__ of course you can change the parameters to your likings
 * get ID of resourcegroup: __*az group show -n testRG --query id*__
 * create service principal: __*az ad sp create-for-rbac -n testClusterSP  --role="Contributor" --scopes YOUR_RESOURCEGROUP_ID*__
@@ -54,10 +45,28 @@ If you like to use keyvault for storing secrets, please have a look at this [lin
 
 make sure you have terraform cli installed and that you have an active session (az login)
 
+* cd aks/terraform
 * change the values in variables.tfvars (mandatory) other variables, for eg. in variables.tf are optional
 * terraform init 
 * terraform plan -var-file=variables.tfvars
 * terraform apply -var-file=variables.tfvars
+
+## Setup Azure Container Registry
+
+### Scripted
+
+* Create Registry: __*az acr create -n [name of container registry] -g [name of resourcegroup] --admin-enable true --sku Basic*__
+
+### Desired State
+
+#### ARM
+
+* cd aks/arm
+* create ACR: __*az group deployment create --template-file acr-azuredeploy.json -g [name of resourcegroup] --parameters acrName=[acr name] acrStorageAccountName=[storage account name] location=[location]*__
+
+
+#### Terraform
+
 
 ## Basic Kubernetes
 
@@ -77,7 +86,7 @@ make sure you have terraform cli installed and that you have an active session (
 
 ## Deploy  Game of Thrones Application
 
-### Install GOT app via kubectl
+### Install GOT app with kubectl
 
 * change code...or not
 * create image __*docker build -t [your dockerhub account]/[your image name] .*__
@@ -89,7 +98,13 @@ make sure you have terraform cli installed and that you have an active session (
   * __*kubectl describe [pod name]*__
   * Bonus: label app and use label to retrieve pod name
 
-  ### Setup application logging with EFK
+### Install GOT app with DRAFT
+
+* change code...or not
+* 
+
+
+### Setup application logging with EFK
 
 
 
