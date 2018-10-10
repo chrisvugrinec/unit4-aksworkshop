@@ -145,3 +145,4 @@ Bonus: make redis part of the GOT application (hint use helm)
   ### Look at Integrated logging (Application Insights)
 ## Config Autoscaling
   ### Chatbot scaler
+
