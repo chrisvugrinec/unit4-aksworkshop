@@ -5,7 +5,6 @@ The goal of this workshop is to get familiar with AKS and learn some basic troub
 * Setup AKS cluster
 * Setup ACR
 * Deploy  Game of Thrones Application
-* Deploy Cats and Dogs application
 * Implement basic Security
 * Infrastructure logging
 * Config Autoscaling
@@ -136,9 +135,8 @@ Bonus: make redis part of the GOT application (hint use helm)
 
 
 
+
   ### Install OSBA, move REDIS to PAAS
-## Deploy Cats and Dogs application
-  ### package application in Helm
 ## Implement basic Security
   ### Namespace management
   ### Exposure of services
