@@ -20,10 +20,12 @@ __*git clone https://github.com/chrisvugrinec/unit4-aksworkshop.git*__
   install the [cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) or go the http://shell.azure.com
 
 * create resourcegroup: __*az group create -n myAKSClusterRG -l westeurope*__
-* create aks cluster: __*az aks create -g myAKSClusterRG -n myAKSCluster --node-count 1 --enable-addons monitoring --generate-ssh-keys*__
+* create aks cluster: __*az aks create -g myAKSClusterRG -n myAKSCluster --node-count 1 --node-vm-size Standard_D2s_v3 --enable-addons monitoring --generate-ssh-keys*__
 * install kubectl: __*az aks install-cli*__
 * get credentials (needed for connecting to cluster): __*az aks get-credentials -g myAKSClusterRG -n myAKSCluster*__
-* test if it is working __*kubectl get nodes -o wide*__
+* test if it is working: __*kubectl get nodes -o wide*__
+
+Please note the VM Size, for this lab we need nodes/machines with more than 4GB mem
 
 ### Desired State:
 
@@ -63,7 +65,6 @@ make sure you have terraform cli installed and that you have an active session (
 * cd aks/arm
 * create ACR: __*az group deployment create --template-file acr-azuredeploy.json -g [name of resourcegroup] --parameters acrName=[acr name] acrStorageAccountName=[storage account name] location=[location]*__
 
-
 #### Terraform
 
 * cd aks/terraform
@@ -71,6 +72,12 @@ make sure you have terraform cli installed and that you have an active session (
 * __*terraform init*__
 * __*terraform plan*__
 * __*terraform apply -auto-aprove*__
+
+### Scale cluster with additional nodes
+
+* list current nodes: __*kubectl get nodes*__
+* list current aks cluster: __*az aks list -o table*__
+* scale: az aks scale --node-count [desired amount of nodes] -g [resourcegroup] -n [name of cluster]
 
 ## Basic Kubernetes
 
@@ -116,6 +123,8 @@ Bonus: make redis part of the GOT application (hint use helm)
 
 ### Install GOT app with DRAFT
 
+Install draft cli: https://draft.sh/
+
 * change code...or not
 * cd got-app
 * __*draft init*__
@@ -130,19 +139,33 @@ Bonus: make redis part of the GOT application (hint use helm)
   * change internalPort from 8080 to 5000
 * deploy app to kubernetes: __*draft up*__
 
-
 ### Setup application logging with EFK
 
+* Go to new folder, for eg __*cd /tmp*__
+* Clone repo: git clone this repo: __*git clone https://github.com/chrisvugrinec/aks-logging.git*__
+* cd elastic-fluentd-kibana
+* label all the nodes in the cluster: __*1_labelNodes.sh*__
+* create the namespace, storage types and install elastic search __*2_elasticSearch.sh*__
+* create config and installation of fluentd: __*3_fluentd.sh*__
+* install kibana: __*4_kibana.sh*__
+
+Bonus: Expose Kibana service to private VNET, tip test locally first with: kubectl port-forward [name of kibana pod] -n efk-demo :5601
+
+Check if everything is up and running: __*kubectl get pods -n efk-demo*__
+
+Connect to the public IP addres: __*kubectl get svc -n efk-demo*__
+Create the index (can take a while) and play with some logging/ reports....
+* create query
+* create visualization
+* create dashboard
 
 
-
-  ### Install OSBA, move REDIS to PAAS
+### Install OSBA, move REDIS to PAAS
 ## Implement basic Security
-  ### Namespace management
-  ### Exposure of services
+### Namespace management
+### Exposure of services
 ## Infrastructure logging
   ### Setup prometheus
   ### Look at Integrated logging (Application Insights)
 ## Config Autoscaling
   ### Chatbot scaler
-
