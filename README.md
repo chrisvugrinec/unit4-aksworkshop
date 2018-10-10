@@ -22,7 +22,10 @@ The goal of this workshop is to get familiar with AKS and learn some basic troub
 
 ## Setup AKS cluster
 
-  ### Scripted
+Make sure you clone this repo with the following command:
+__*git clone https://github.com/chrisvugrinec/unit4-aksworkshop.git*__
+
+### Scripted
 
   install the [cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) or go the http://shell.azure.com
 
@@ -56,9 +59,40 @@ make sure you have terraform cli installed and that you have an active session (
 * terraform plan -var-file=variables.tfvars
 * terraform apply -var-file=variables.tfvars
 
+## Basic Kubernetes
+
+### Namespace
+
+* list namespaces: __*kubectl get ns*__
+* create namespace __*kubectl create ns [name of namespace]*__
+* list deployments in the kube-system namespace: __*kubectl get deploy -n kube-system*__
+* list pods over all namespace: __*kubectl get pods --all-namespaces*__
+
+### Context
+
+* List contexts: __*kubectl config get-contexts*__
+* Switch context: __*kube config set-context [context name]*__
+* Switch default namespace: __*kubectl config set-context [context name] --namespace [namespace name]*__
+
 
 ## Deploy  Game of Thrones Application
+
+### Install GOT app via kubectl
+
+* change code...or not
+* create image __*docker build -t [your dockerhub account]/[your image name] .*__
+* push image to dockerhub __*docker push [your dockerhub account]/[your image name]*__
+* Deploy __*kubectl run [deployment name] --image [your dockerhub account]/[your image name]*__
+* check if deployment is up and running: __*kubectl get pods -w*__ or __*kubectl get deploy*__
+* check logs/ troubleshoot
+  * __*kubectl logs -f [pod name]*__
+  * __*kubectl describe [pod name]*__
+  * Bonus: label app and use label to retrieve pod name
+
   ### Setup application logging with EFK
+
+
+
   ### Install OSBA, move REDIS to PAAS
 ## Deploy Cats and Dogs application
   ### package application in Helm
