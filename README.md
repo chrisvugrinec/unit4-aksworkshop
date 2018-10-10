@@ -8,6 +8,7 @@ The goal of this workshop is to get familiar with AKS and learn some basic troub
 * Implement basic Security
 * Infrastructure logging
 * Config Autoscaling
+* Troubkeshooting
 
 
 ## Setup AKS cluster
@@ -159,13 +160,40 @@ Create the index (can take a while) and play with some logging/ reports....
 * create visualization
 * create dashboard
 
-
 ### Install OSBA, move REDIS to PAAS
+
+Install and config helm: https://helm.sh/
+
+* helm init --upgrade
+* helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
+* helm repo update
+* helm install svc-cat/catalog --name catalog --namespace catalog --set controllerManager.healthcheck.enabled=false
+* helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
+* helm repo update
+* SERVICE_PRINCIPAL=$(az ad sp create-for-rbac)
+* AZURE_CLIENT_ID=$(echo $SERVICE_PRINCIPAL | cut -d '"' -f 4)
+* AZURE_CLIENT_SECRET=$(echo $SERVICE_PRINCIPAL | cut -d '"' -f 16)
+* AZURE_TENANT_ID=$(echo $SERVICE_PRINCIPAL | cut -d '"' -f 20)
+* AZURE_SUBSCRIPTION_ID=$(az account show --query id --output tsv)
+* helm install azure/open-service-broker-azure --name osba --namespace osba \
+    --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
+    --set azure.tenantId=$AZURE_TENANT_ID \
+    --set azure.clientId=$AZURE_CLIENT_ID \
+    --set azure.clientSecret=$AZURE_CLIENT_SECRET
+
+
 ## Implement basic Security
 ### Namespace management
 ### Exposure of services
 ## Infrastructure logging
-  ### Setup prometheus
-  ### Look at Integrated logging (Application Insights)
+### Setup prometheus
+### Look at Integrated logging (Application Insights)
 ## Config Autoscaling
-  ### Chatbot scaler
+### Chatbot scaler
+
+## Troubeshooting
+
+### RBAC issue
+
+* Error: release catalog failed: namespaces "catalog" is forbidden: User "system:serviceaccount:kube-system:default" cannot get namespaces in the namespace "catalog"
+  * kubectl create clusterrolebinding kube-catalog -n kube-system --clusterrole=cluster-admin --serviceaccount=kube-system:default
