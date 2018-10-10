@@ -1,0 +1,24 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+        "resourceName": {
+			"value": "GEN-UNIQUE"
+		},
+		"dnsPrefix": {
+			"value": "GEN-UNIQUE"
+		},
+		"linuxAdminUsername": {
+			"value": "GEN-UNIQUE"
+		},
+		"sshRSAPublicKey": {
+			"value": "YOUR PUB SSH KEY"
+		},
+		"servicePrincipalClientId": {
+			"value": "GEN-UNIQUE"
+		},
+		"servicePrincipalClientSecret": {
+			"value": "GEN-UNIQUE"
+		}
+	}
+}
