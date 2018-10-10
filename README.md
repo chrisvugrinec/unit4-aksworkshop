@@ -49,6 +49,13 @@ If you like to use keyvault for storing secrets, please have a look at this [lin
 
 #### Terraform
 
+make sure you have terraform cli installed and that you have an active session (az login)
+
+* change the values in variables.tfvars (mandatory) other variables, for eg. in variables.tf are optional
+* terraform init 
+* terraform plan -var-file=variables.tfvars
+* terraform apply -var-file=variables.tfvars
+
 
 ## Deploy  Game of Thrones Application
   ### Setup application logging with EFK
