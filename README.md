@@ -272,4 +272,6 @@ Bonus: Autoscale and app using the [aci-connector](https://azure.microsoft.com/e
 ### RBAC issue
 
 * Error: release catalog failed: namespaces "catalog" is forbidden: User "system:serviceaccount:kube-system:default" cannot get namespaces in the namespace "catalog"
-  * kubectl create clusterrolebinding kube-catalog -n kube-system --clusterrole=cluster-admin --serviceaccount=kube-system:default
+  * __*kubectl create clusterrolebinding kube-catalog -n kube-system --clusterrole=cluster-admin --serviceaccount=kube-system:default*__
+* nodes is forbidden: User "system:serviceaccount:kube-system:kubernetes-dashboard" cannot list nodes at the cluster scope
+  * __*kubectl create clusterrolebinding kube-dashboard -n kube-system --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard*__
