@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import Flask, render_template
-from redis import Redis
+#from redis import Redis
+import redis
 import os
 import socket
 import logging
@@ -8,8 +9,13 @@ import sys
 
 
 app = Flask(__name__)
-redis = Redis(host='redis', port=6379)
-#logging.basicConfig(filename='/var/log/containers/webcounter.log',level=logging.DEBUG)
+# redis = Redis(host='redis', port=6379)
+
+redisHost = os.environ['REDIS_HOST']
+redisKey  = os.environ['REDIS_KEY']
+redis = redis.StrictRedis(host=redisHost, port=6380,password=redisKey,ssl=True)
+
+
 logging.basicConfig(stream=sys.stdout,level=logging.DEBUG)
 
 @app.route('/')

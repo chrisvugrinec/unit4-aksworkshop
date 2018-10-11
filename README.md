@@ -53,6 +53,8 @@ make sure you have terraform cli installed and that you have an active session (
 * terraform plan -var-file=variables.tfvars
 * terraform apply -var-file=variables.tfvars
 
+You can also follow the instructions [here](https://docs.microsoft.com/en-us/azure/terraform/terraform-create-k8s-cluster-with-tf-and-aks?toc=%2Fen-us%2Fazure%2Faks%2FTOC.json&bc=%2Fen-us%2Fazure%2Fbread%2Ftoc.json)
+
 ## Setup Azure Container Registry
 
 ### Scripted
@@ -162,6 +164,8 @@ Create the index (can take a while) and play with some logging/ reports....
 
 ### Install OSBA, move REDIS to PAAS
 
+#### Install OSBA
+
 Install and config helm: https://helm.sh/
 
 * helm init --upgrade
@@ -181,15 +185,87 @@ Install and config helm: https://helm.sh/
     --set azure.clientId=$AZURE_CLIENT_ID \
     --set azure.clientSecret=$AZURE_CLIENT_SECRET
 
+#### Install svcat cli
+
+* Have a look at: https://github.com/Azure/service-catalog-cli
+* See available classes: __*svcat get classes*__
+
+#### Move from redis k8 to redis PAAS
+
+* create redis cache: __*az redis create -g [name of resourcegroup] -n [name of redis] -l [location] --sku Basic --vm-size C0*__
+* go to the portal and copy the hostname and key
+* add secret.yaml to charts/python/templates/
+* add the following part to: charts/python/values.yaml
+```
+secret:
+  name: redissecret
+  redishost: xxxREDIS HOSTxxx
+  rediskey: xxxREDIS KEYxxxx
+```
+
+* Change the sourcecode so that it is using the environment variables
+* Add the following part to: charts/python/templates/deployment.yaml, this should be within the container indentation
+
+```
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        env:
+          - name: REDIS_HOST
+            valueFrom:
+              secretKeyRef:
+                name: redissecret
+                key: redisHost
+          - name: REDIS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: redissecret
+                key: redisKey
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+```
+Check the portal, the redis cli, you should be able to see the values with the following command: keys ```*```
 
 ## Implement basic Security
-### Namespace management
-### Exposure of services
+
+https://docs.bitnami.com/kubernetes/how-to/configure-rbac-in-your-kubernetes-cluster/
+
 ## Infrastructure logging
+
 ### Setup prometheus
+
+* add the helm repo: __*helm repo add coreos*__  https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
+* install helm prometheus operator package: __*helm install coreos/prometheus-operator --name prometheus-operator --namespace monitoring*__
+* install kubernetes specific metrics: __*helm install coreos/kube-prometheus --name kube-prometheus --set global.rbacEnable=true --namespace monitoring*__
+* checkout grafana: __*kubectl port-forward $(kubectl get  pods --selector=app=kube-prometheus-grafana -n  monitoring --output=jsonpath="{.items..metadata.name}") -n monitoring  3000*__
+
 ### Look at Integrated logging (Application Insights)
-## Config Autoscaling
-### Chatbot scaler
+
+If aks cluster has no monitoring (app insights enabled) do so in the portal, have a look in the monitoring tab...it will contain AKS cluster monitoring as well...please note initial data will take a while to appear
+
+## Config and test Autoscaling
+
+Instructions from: https://docs.microsoft.com/en-us/azure/aks/autoscaler
+
+* create the secret 
+  * __*cd autoscaler*__
+  * __*./createSecret.sh > secret.yaml*__
+  * __*create -f secret.yaml*__
+* do the autoscaler deployment: __*kubectl create -f aks-cluster-autoscaler.yaml*__
+* check scaler status: __*kubectl -n kube-system describe configmap cluster-autoscaler-status*__
+
+Test it:
+
+* Autoscaling nodes:
+  * deploy hadoop
+* Horizontal Pod Autoscaler:
+  * deploy the cats and the dogs app: __*create -f cats-and-dogs.yaml*__
+  * create autoscaling rule for frontend deployment: __*kubectl autoscale deployment azure-vote-front --cpu-percent=50 --min=3 --max=10*__
+  * check hpa: __*kubectl get hpa*__
+
+
+
+
+Bonus: Autoscale and app using the [aci-connector](https://azure.microsoft.com/en-us/resources/samples/virtual-kubelet-aci-burst/)
 
 ## Troubeshooting
 
