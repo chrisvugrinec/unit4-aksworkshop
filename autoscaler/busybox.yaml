@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: busybox
+  labels:
+    app: busybox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: busybox
+  template:
+    metadata:
+      labels:
+        app: busybox
+    spec:
+      containers:
+      - name: busybox
+        image: busybox
+        command:
+          - /bin/sh
+          - "-c"
+          - "for i in $(seq 1 1000000); do echo \"hello world $i \" | md5sum; done;"
+        imagePullPolicy: Always
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      # Tolerate the ACI taint to get the scheduler to schedule it.
+      tolerations:
+      - key: azure.com/aci
+        effect: NoSchedule
