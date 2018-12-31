@@ -13,8 +13,8 @@ The goal of this workshop is to get familiar with AKS and learn some basic troub
 
 ## Setup AKS cluster
 
-Make sure you clone this repo with the following command:
-__*git clone https://github.com/chrisvugrinec/unit4-aksworkshop.git*__
+clone the repository: __*git clone https://github.com/chrisvugrinec/unit4-aksworkshop.git*__
+
 
 ### Scripted
 
@@ -252,11 +252,13 @@ Instructions from: https://docs.microsoft.com/en-us/azure/aks/autoscaler
   * __*create -f secret.yaml*__
 * do the autoscaler deployment: __*kubectl create -f aks-cluster-autoscaler.yaml*__
 * check scaler status: __*kubectl -n kube-system describe configmap cluster-autoscaler-status*__
+* if metrics is not installed:
+  * __*git clone https://github.com/kubernetes-incubator/metrics-server.git*__
+  * __*kubectl create -f metrics-server/deploy/1.8+/*__
+
 
 Test it:
 
-* Autoscaling nodes:
-  * deploy hadoop
 * Horizontal Pod Autoscaler:
   * deploy the cats and the dogs app: __*create -f cats-and-dogs.yaml*__
   * create autoscaling rule for frontend deployment: __*kubectl autoscale deployment azure-vote-front --cpu-percent=50 --min=3 --max=10*__
